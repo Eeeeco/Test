@@ -250,14 +250,14 @@
         }
         .contact-form label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             font-weight: bold;
             color: #2c3e50;
         }
         .contact-form input, .contact-form textarea {
             width: 100%;
             padding: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1em;
@@ -276,7 +276,7 @@
             background-color: #2980b9;
         }
         .contact-details p {
-            margin: 15px 0;
+            margin: 25px 0;
             font-size: 1.1em;
         }
         .contact-details i {
@@ -345,6 +345,9 @@
             }
             .contact-form button {
                 width: 100%;
+            }
+            .hero {
+                margin-top: 20px;
             }
         }
     </style>
@@ -415,7 +418,7 @@
     <!-- Experience Section -->
     <section id="experience">
         <h2>Experience</h2>
-        <!-- Current Experience: Trader & Market Strategist -->
+        <!-- Trader & Market Strategist Experience -->
         <div class="job">
             <h3>Trader & Market Strategist</h3>
             <p>Sep 2024 – Present</p>
@@ -429,7 +432,7 @@
                 <li>Maintain a diversified portfolio across multiple asset classes, balancing short-term profits with long-term growth opportunities to ensure consistent returns.</li>
             </ul>
         </div>
-        <!-- Previous Experience: Hero Motors Limited -->
+        <!-- Executive Assistant Experience -->
         <div class="job">
             <h3>Executive Assistant</h3>
             <p>Hero Motors Limited, Gautam Buddh Nagar | May 2018 - Aug 2024</p>
@@ -560,7 +563,7 @@
         <div class="contact-wrapper">
             <div class="contact-form">
                 <h3>Send a Message</h3>
-                <form action="mailto:mds1997@gmail.com" method="post" enctype="text/plain">
+                <form action="mailto:mds1997trading@gmail.com" method="post" enctype="text/plain">
                     <label for="name">Name</label>
                     <input type="text" id="name" name="name" placeholder="Your Name" required>
                     <label for="email">Email</label>
@@ -572,7 +575,7 @@
             </div>
             <div class="contact-details">
                 <h3>Contact Information</h3>
-                <p><i class="fas fa-envelope"></i> mds1997@gmail.com</p>
+                <p><i class="fas fa-envelope"></i> mds1997trading@gmail.com</p>
                 <p><i class="fas fa-phone"></i> +91-8585989352</p>
                 <p><i class="fas fa-map-marker-alt"></i> Ghaziabad, India 201001</p>
             </div>
@@ -584,7 +587,7 @@
         <p>Made with ♥ by Dibyanshu © 2025</p>
     </footer>
 
-    <!-- JavaScript for Animation -->
+    <!-- JavaScript for Animation and Scroll Adjustment -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Timeline Observer
@@ -610,6 +613,12 @@
                 });
             }, { threshold: 0.5 });
             skillsObserver.observe(skillsSection);
+
+            // Set scroll-margin-top for sections based on header height
+            const headerHeight = document.querySelector('nav').offsetHeight;
+            document.querySelectorAll('section').forEach(section => {
+                section.style.scrollMarginTop = headerHeight + 'px';
+            });
         });
     </script>
 </body>
