@@ -3,614 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dibyanshu Singh - Portfolio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Live House Price Prediction (TF.js)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest"></script>
     <style>
-        /* General Styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        /* Navigation Bar */
-        nav {
-            background-color: #2c3e50;
-            color: #fff;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            padding: 15px 0;
-            margin: 0;
-        }
-        nav ul li {
-            margin: 0 20px;
-        }
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-        nav ul li a:hover {
-            color: #3498db;
-        }
-
-        /* Home Section */
-        #home {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: #fff;
-            text-align: center;
-            padding: 20px;
-        }
-        #home .hero h1 {
-            font-size: 3.5em;
-            margin-bottom: 10px;
-            opacity: 0;
-            animation: fadeInUp 1s ease 0.5s forwards;
-        }
-        #home .hero p {
-            font-size: 1.5em;
-            opacity: 0;
-            animation: fadeInUp 1s ease 1s forwards;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Section Styles */
-        section {
-            padding: 60px 20px;
-        }
-        h2 {
-            text-align: center;
-            font-size: 2.5em;
-            margin-bottom: 40px;
-            color: #2c3e50;
-        }
-
-        /* Education Section with Animated Timeline */
-        #education {
-            background-color: #fff;
-        }
-        .timeline {
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .timeline::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            width: 3px;
-            background-color: #3498db;
-            transform: translateX(-50%);
-        }
-        .timeline-item {
-            position: relative;
-            margin: 30px 0;
-            width: 50%;
-        }
-        .timeline-item.left { left: 0; }
-        .timeline-item.right { left: 50%; }
-        .timeline-content {
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            position: relative;
-            opacity: 0;
-            transition: all 0.5s ease;
-        }
-        .timeline-item.left .timeline-content {
-            transform: translateX(-30px);
-        }
-        .timeline-item.right .timeline-content {
-            transform: translateX(30px);
-        }
-        .timeline-item.visible .timeline-content {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        .timeline-item::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: #3498db;
-            border-radius: 50%;
-            z-index: 1;
-            top: 25px;
-        }
-        .timeline-item.left::after {
-            right: -10px;
-        }
-        .timeline-item.right::after {
-            left: -10px;
-        }
-        .timeline-content h3 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-
-        /* Experience Section */
-        #experience {
-            background-color: #f4f4f4;
-        }
-        .job {
-            max-width: 800px;
-            margin: 0 auto 20px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .job h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        .job p {
-            margin: 5px 0 15px;
-            font-style: italic;
-        }
-        .job ul {
-            list-style: disc;
-            padding-left: 20px;
-        }
-
-        /* Skills Section with Animated Progress Bars */
-        #skills {
-            background-color: #fff;
-        }
-        .skills-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-        }
-        .skill-item {
-            flex: 1 1 300px;
-            max-width: 400px;
-        }
-        .skill-item p {
-            margin: 0 0 10px 0;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .progress-container {
-            display: flex;
-            align-items: center;
-        }
-        .progress-bar {
-            flex-grow: 1;
-            height: 20px;
-            background-color: #ecf0f1;
-            border-radius: 10px;
-            margin-right: 10px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background-color: #3498db;
-            width: 0;
-            transition: width 1s ease;
-        }
-        .skill-item.animate .progress-fill {
-            width: var(--percentage);
-        }
-        .progress-text {
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        /* Staggered animation delays */
-        .skill-item:nth-child(1) .progress-fill { transition-delay: 0s; }
-        .skill-item:nth-child(2) .progress-fill { transition-delay: 0.2s; }
-        .skill-item:nth-child(3) .progress-fill { transition-delay: 0.4s; }
-        .skill-item:nth-child(4) .progress-fill { transition-delay: 0.6s; }
-        .skill-item:nth-child(5) .progress-fill { transition-delay: 0.8s; }
-        .skill-item:nth-child(6) .progress-fill { transition-delay: 1s; }
-        .skill-item:nth-child(7) .progress-fill { transition-delay: 1.2s; }
-        .skill-item:nth-child(8) .progress-fill { transition-delay: 1.4s; }
-        .skill-item:nth-child(9) .progress-fill { transition-delay: 1.6s; }
-        .skill-item:nth-child(10) .progress-fill { transition-delay: 1.8s; }
-
-        /* Contact Section */
-        #contact {
-            background-color: #f4f4f4;
-        }
-        .contact-wrapper {
-            display: flex;
-            gap: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .contact-form, .contact-details {
-            flex: 1;
-        }
-        .contact-form h3, .contact-details h3 {
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-        .contact-form label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .contact-form input, .contact-form textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-        .contact-form button {
-            background-color: #3498db;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-size: 1em;
-        }
-        .contact-form button:hover {
-            background-color: #2980b9;
-        }
-        .contact-details p {
-            margin: 15px 0;
-            font-size: 1.1em;
-        }
-        .contact-details i {
-            margin-right: 10px;
-            color: #3498db;
-            font-size: 1.2em;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #2c3e50;
-            color: #fff;
-            text-align: center;
-            padding: 15px 0;
-        }
-
-        /* Smooth Scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            nav ul {
-                flex-direction: column;
-                text-align: center;
-            }
-            nav ul li {
-                margin: 10px 0;
-            }
-            #home .hero h1 {
-                font-size: 2.5em;
-            }
-            #home .hero p {
-                font-size: 1.2em;
-            }
-            .timeline::before {
-                left: 20px;
-            }
-            .timeline-item {
-                width: 100%;
-                left: 0;
-            }
-            .timeline-item.right .timeline-content,
-            .timeline-item.left .timeline-content {
-                transform: translateX(30px);
-            }
-            .timeline-item.visible .timeline-content {
-                transform: translateX(0);
-            }
-            .timeline-item.left::after,
-            .timeline-item.right::after {
-                left: 10px;
-                right: auto;
-            }
-            .skills-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            .job {
-                margin: 0 10px 20px;
-            }
-            .contact-wrapper {
-                flex-direction: column;
-                gap: 30px;
-            }
-            .contact-form button {
-                width: 100%;
-            }
-        }
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        input, button { padding: 10px; font-size: 16px; margin: 5px 0; }
+        .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px; font-weight: bold; }
+        #status { color: gray; font-style: italic; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#education">Education</a></li>
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#skills">Skills</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
 
-    <!-- Home Section -->
-    <section id="home">
-        <div class="hero">
-            <h1>Dibyanshu Singh</h1>
-            <p>Executive Assistant | Administrative Professional</p>
-        </div>
-    </section>
+    <h1>🏡 Live House Price Predictor</h1>
+    <p>This model runs entirely in your browser using <strong>TensorFlow.js</strong>. It trains on a small dataset of "Size vs Price" every time you load the page.</p>
 
-    <!-- Education Section with Animated Timeline -->
-    <section id="education">
-        <h2>Education</h2>
-        <div class="timeline">
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>High School</h3>
-                    <p>Allahabad (U.P BOARD) 2013</p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <h3>Intermediate</h3>
-                    <p>Allahabad (U.P BOARD) 2015</p>
-                </div>
-            </div>
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>DCA</h3>
-                    <p>MLCRP University Bhopal M.P (2016)</p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <h3>B.A Honors</h3>
-                    <p>CSJM University Kanpur U.P (2018)</p>
-                </div>
-            </div>
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>SAP MM</h3>
-                    <p>Future Labs Technology Noida U.P</p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <h3>PGDM</h3>
-                    <p>IMT College Ghaziabad (Pursuing)</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div id="status">Status: Loading Engine...</div>
 
-    <!-- Experience Section -->
-    <section id="experience">
-        <h2>Experience</h2>
-        <!-- Current Experience: Trader & Market Strategist -->
-        <div class="job">
-            <h3>Trader & Market Strategist</h3>
-            <p>Sep 2024 – Present</p>
-            <ul>
-                <li>Conduct in-depth market research and analysis across various asset classes (Forex, FTT, Commodities, Indices, Cryptocurrencies, and Stocks) to identify profitable opportunities and develop tailored trading strategies.</li>
-                <li>Design and implement risk management strategies to safeguard investments, utilizing stop-loss orders, position sizing, and portfolio diversification to optimize returns and minimize exposure.</li>
-                <li>Execute trades with precision and efficiency, using a combination of technical and fundamental analysis to identify optimal entry and exit points in volatile markets.</li>
-                <li>Continuously track and evaluate the performance of trades, applying analytics tools to refine strategies and improve trade execution, ensuring continuous growth of the portfolio.</li>
-                <li>Monitor global financial news, economic reports, and geopolitical events to anticipate market movements and adjust trading strategies accordingly.</li>
-                <li>Stay ahead of market trends by adapting strategies to reflect changes in market sentiment, emerging technologies, and new financial instruments in the trading landscape.</li>
-                <li>Maintain a diversified portfolio across multiple asset classes, balancing short-term profits with long-term growth opportunities to ensure consistent returns.</li>
-            </ul>
-        </div>
-        <!-- Previous Experience: Hero Motors Limited -->
-        <div class="job">
-            <h3>Executive Assistant</h3>
-            <p>Hero Motors Limited, Gautam Buddh Nagar | May 2018 - Aug 2024</p>
-            <ul>
-                <li>Handled confidential and sensitive information with discretion and tact.</li>
-                <li>Scheduled board meetings, maintained records of decisions, prepared agendas.</li>
-                <li>Managed executive calendars, scheduling meetings and coordinating travel arrangements.</li>
-                <li>Maintained confidentiality with sensitive documents, ensuring proper storage.</li>
-                <li>Processed travel expenses and reimbursements for executive team.</li>
-                <li>Streamlined executive communication by managing emails and appointments.</li>
-                <li>Organized and coordinated conferences and monthly meetings.</li>
-                <li>Managed office inventory, tracking supplies and placing orders.</li>
-                <li>Coordinated staff events, promoting team-building and boosting morale.</li>
-                <li>Provided administrative support during board meetings, including minute-taking.</li>
-                <li>Supported decision-making by conducting research and presenting findings.</li>
-                <li>Prepared and edited presentations for internal and external meetings.</li>
-                <li>Improved office efficiency with new filing and document management systems.</li>
-                <li>Developed vendor relationships, improving contract terms and saving costs.</li>
-                <li>Developed automated alert systems for important deadlines.</li>
-                <li>Implemented time-saving solutions for meeting preparations.</li>
-                <li>Worked with senior management to initiate new projects.</li>
-                <li>Handled logistics, catering, and travel for board and executive meetings.</li>
-                <li>Created and managed office systems for efficient documentation.</li>
-            </ul>
-        </div>
-    </section>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div id="plot-data" style="width: 400px; height: 300px; background: #fff; border: 1px solid #ddd;"></div>
+        <div id="plot-loss" style="width: 400px; height: 300px; background: #fff; border: 1px solid #ddd;"></div>
+    </div>
 
-    <!-- Skills Section with Animated Progress Bars -->
-    <section id="skills">
-        <h2>Skills</h2>
-        <div class="skills-container">
-            <div class="skill-item" style="--percentage: 90%;">
-                <p>Video Editing</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">90%</span>
-                </div>
-            </div>
-            <div class="skill-item" style="--percentage: 85%;">
-                <p>Social Media Management</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">85%</span>
-                </div>
-            </div>
-            <div class="skill-item" style="--percentage: 80%;">
-                <p>Graphic Design</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">80%</span>
-                </div>
-            </div>
-            <div class="skill-item" style="--percentage: 95%;">
-                <p>Communication</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">95%</span>
-                </div>
-            </div>
-            <div class="skill-item" style="--percentage: 90%;">
-                <p>Time Management</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">90%</span>
-                </div>
-            </div>
-            <div class="skill-item" style="--percentage: 75%;">
-                <p>Community Management</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">75%</span>
-                </div>
-            </div>
-            <div class="skill-item" style="--percentage: 85%;">
-                <p>Project Planning</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">85%</span>
-                </div>
-            </div>
-            <div class="skill-item" style="--percentage: 80%;">
-                <p>Database Management</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">80%</span>
-                </div>
-            </div>
-            <div class="skill-item" style="--percentage: 85%;">
-                <p>Cryptocurrency Trading</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">85%</span>
-                </div>
-            </div>
-            <div class="skill-item" style="--percentage: 80%;">
-                <p>Forex Analysis</p>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">80%</span>
-                </div>
-            </div>
-        </div>
-    </section>
+    <hr>
 
-    <!-- Contact Section -->
-    <section id="contact">
-        <h2>Contact</h2>
-        <div class="contact-wrapper">
-            <div class="contact-form">
-                <h3>Send a Message</h3>
-                <form action="mailto:mds1997@gmail.com" method="post" enctype="text/plain">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" name="name" placeholder="Your Name" required>
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Your Email" required>
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" rows="5" placeholder="Your Message" required></textarea>
-                    <button type="submit">Send Message</button>
-                </form>
-            </div>
-            <div class="contact-details">
-                <h3>Contact Information</h3>
-                <p><i class="fas fa-envelope"></i> mds1997@gmail.com</p>
-                <p><i class="fas fa-phone"></i> +91-8585989352</p>
-                <p><i class="fas fa-map-marker-alt"></i> Ghaziabad, India 201001</p>
-            </div>
-        </div>
-    </section>
+    <h3>Predict Price</h3>
+    <label>Enter House Size (sq ft):</label><br>
+    <input type="number" id="input-size" placeholder="e.g. 2000" disabled>
+    <button id="predict-btn" disabled>Predict Price</button>
 
-    <!-- Footer -->
-    <footer>
-        <p>Made with ♥ by Dibyanshu © 2025</p>
-    </footer>
+    <div class="result" id="prediction-output">
+        Prediction will appear here...
+    </div>
 
-    <!-- JavaScript for Animation -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Timeline Observer
-            const timelineItems = document.querySelectorAll('.timeline-item');
-            const timelineObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, { threshold: 0.5 });
-            timelineItems.forEach(item => timelineObserver.observe(item));
+        // --- 1. THE DATA (Hardcoded for simplicity) ---
+        // Size (sq ft) vs Price ($1000s)
+        const rawData = [
+            { size: 1000, price: 150 }, { size: 1500, price: 200 },
+            { size: 2000, price: 250 }, { size: 2500, price: 320 },
+            { size: 3000, price: 400 }, { size: 1200, price: 170 },
+            { size: 1800, price: 230 }, { size: 2200, price: 290 },
+            { size: 1600, price: 210 }, { size: 3500, price: 460 },
+            { size: 4000, price: 550 }, { size: 800, price: 120 }
+        ];
 
-            // Skills Observer
-            const skillsSection = document.querySelector('#skills');
-            const skillItems = document.querySelectorAll('.skill-item');
-            const skillsObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        skillItems.forEach(item => item.classList.add('animate'));
-                        skillsObserver.unobserve(skillsSection);
-                    }
+        // --- 2. PREPARE DATA ---
+        function convertDataToTensors(data) {
+            return tf.tidy(() => {
+                // Shuffle data
+                tf.util.shuffle(data);
+
+                // Extract x (inputs) and y (labels)
+                const inputs = data.map(d => d.size);
+                const labels = data.map(d => d.price);
+
+                const inputTensor = tf.tensor2d(inputs, [inputs.length, 1]);
+                const labelTensor = tf.tensor2d(labels, [labels.length, 1]);
+
+                // Normalize data (Min-Max Scaling) to 0-1 range for better training
+                const inputMax = inputTensor.max();
+                const inputMin = inputTensor.min();
+                const labelMax = labelTensor.max();
+                const labelMin = labelTensor.min();
+
+                const normalizedInputs = inputTensor.sub(inputMin).div(inputMax.sub(inputMin));
+                const normalizedLabels = labelTensor.sub(labelMin).div(labelMax.sub(labelMin));
+
+                return {
+                    inputs: normalizedInputs,
+                    labels: normalizedLabels,
+                    inputMax, inputMin, labelMax, labelMin
+                };
+            });
+        }
+
+        // --- 3. CREATE MODEL ---
+        function createModel() {
+            const model = tf.sequential();
+            // One dense layer with 1 unit (Linear Regression basically)
+            model.add(tf.layers.dense({inputShape: [1], units: 1, useBias: true}));
+            return model;
+        }
+
+        // --- 4. TRAIN MODEL ---
+        async function trainModel(model, inputs, labels) {
+            model.compile({
+                optimizer: tf.train.adam(0.1), // Learning rate
+                loss: 'meanSquaredError',
+                metrics: ['mse']
+            });
+
+            const batchSize = 32;
+            const epochs = 100;
+
+            // Train and visualize loss
+            return await model.fit(inputs, labels, {
+                batchSize,
+                epochs,
+                shuffle: true,
+                callbacks: tfvis.show.fitCallbacks(
+                    document.getElementById('plot-loss'),
+                    ['loss', 'mse'], 
+                    { height: 200, callbacks: ['onEpochEnd'] }
+                )
+            });
+        }
+
+        // --- 5. MAIN EXECUTION ---
+        async function run() {
+            const status = document.getElementById('status');
+            status.innerText = "Visualizing Data...";
+            
+            // Visualize Data using tfjs-vis
+            const values = rawData.map(d => ({ x: d.size, y: d.price }));
+            tfvis.render.scatterplot(
+                document.getElementById('plot-data'),
+                { values: values },
+                { xLabel: 'Size (sq ft)', yLabel: 'Price (k$)', height: 300 }
+            );
+
+            // Prepare Data
+            const tensorData = convertDataToTensors(rawData);
+            const { inputs, labels, inputMax, inputMin, labelMax, labelMin } = tensorData;
+
+            // Create & Train
+            status.innerText = "Training Model (Watch the Loss graph)...";
+            const model = createModel();
+            await trainModel(model, inputs, labels);
+
+            status.innerText = "Training Complete! Model Ready.";
+            
+            // Enable UI
+            const inputField = document.getElementById('input-size');
+            const predictBtn = document.getElementById('predict-btn');
+            inputField.disabled = false;
+            predictBtn.disabled = false;
+
+            // Prediction Logic
+            predictBtn.addEventListener('click', () => {
+                const sizeVal = parseInt(inputField.value);
+                if (!sizeVal) return;
+
+                tf.tidy(() => {
+                    // Normalize input
+                    const inputTensor = tf.tensor1d([sizeVal]);
+                    const normalizedInput = inputTensor.sub(inputMin).div(inputMax.sub(inputMin));
+
+                    // Predict
+                    const normalizedPred = model.predict(normalizedInput.reshape([1, 1]));
+
+                    // Un-normalize output
+                    const prediction = normalizedPred.mul(labelMax.sub(labelMin)).add(labelMin);
+                    
+                    const price = prediction.dataSync()[0].toFixed(2);
+                    document.getElementById('prediction-output').innerHTML = 
+                        `Estimated Price for <b>${sizeVal} sq ft</b> is: <b>$${price}k</b>`;
                 });
-            }, { threshold: 0.5 });
-            skillsObserver.observe(skillsSection);
-        });
+            });
+        }
+
+        run();
     </script>
 </body>
 </html>
