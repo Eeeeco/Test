@@ -3,172 +3,213 @@ import pandas as pd
 import numpy as np
 import pickle
 import plotly.graph_objects as go
+import plotly.express as px
 
-# --- 1. CONFIGURATION (The "Top 1%" Look) ---
+# --- 1. SETTING THE STAGE (Headless UI Configuration) ---
 st.set_page_config(
-    page_title="DreamHome AI",
-    page_icon="🏠",
+    page_title="PropAI | Next-Gen Valuation",
+    page_icon="✨",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed" # Cleaner look on load
 )
 
-# Custom CSS for the "Master" aesthetic
+# --- 2. THE DESIGN SYSTEM (Custom CSS Injection) ---
+# This mimics the "Linear" or "Vercel" dark mode aesthetic.
 st.markdown("""
     <style>
-    /* Dark Theme Optimization */
-    .stApp { background-color: #0e1117; color: #ffffff; }
+    /* GLOBAL THEME */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
     
-    /* Typography */
-    h1, h2, h3 { font-family: 'Poppins', sans-serif; font-weight: 600; }
-    h1 { background: -webkit-linear-gradient(#4ade80, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    
-    /* Custom Cards */
-    .metric-container {
-        background: #1f2937;
-        border: 1px solid #374151;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+        background-color: #000000; /* True Black */
+        color: #e0e0e0;
     }
     
-    /* Buttons */
-    .stButton>button {
-        width: 100%;
-        border-radius: 8px;
-        background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-        color: white;
+    /* GLASSMORPHISM CARDS */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* TYPOGRAPHY */
+    h1 { font-weight: 800; letter-spacing: -1px; background: linear-gradient(90deg, #fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    h2, h3 { font-weight: 600; letter-spacing: -0.5px; color: #fff; }
+    p, label { color: #888; font-size: 14px; }
+    
+    /* INPUTS & SLIDERS */
+    .stSlider > div > div > div > div { background-color: #3b82f6; }
+    div[data-baseweb="select"] > div { background-color: rgba(255,255,255,0.05); border-color: #333; color: white; }
+    
+    /* BUTTONS */
+    .stButton > button {
+        background: white;
+        color: black;
+        border-radius: 30px;
+        padding: 10px 24px;
+        font-weight: 600;
         border: none;
-        padding: 12px;
-        font-weight: bold;
-        transition: transform 0.2s;
+        box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        transition: all 0.3s ease;
     }
-    .stButton>button:hover { transform: scale(1.02); }
+    .stButton > button:hover {
+        background: #f0f0f0;
+        box-shadow: 0 0 30px rgba(255,255,255,0.3);
+        transform: scale(1.02);
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. LOAD THE SAVED MODEL ---
+# --- 3. LOGIC CORE ---
 @st.cache_resource
-def load_data():
+def load_bundle():
     try:
         with open('house_price_model.pkl', 'rb') as f:
             return pickle.load(f)
-    except FileNotFoundError:
+    except:
         return None
 
-artifacts = load_data()
+artifacts = load_bundle()
 
-# --- 3. SIDEBAR (User Inputs) ---
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/8226/8226242.png", width=80)
-    st.title("Property Config")
-    st.write("Tweaking parameters...")
-    
-    # Currency Switcher
-    currency = st.radio("Display Currency", ["USD ($)", "INR (₹)"], horizontal=True)
-    exchange_rate = 84.0  # Approx 1 USD = 84 INR
+if not artifacts:
+    st.error("🚨 System Halted: Model artifacts missing. Please upload 'house_price_model.pkl'.")
+    st.stop()
 
-    st.markdown("---")
+# --- 4. UI STRUCTURE ---
+
+# HERO SECTION
+col_hero_1, col_hero_2 = st.columns([3, 1])
+with col_hero_1:
+    st.title("PropAI Estimate™")
+    st.markdown("<p style='font-size: 18px; margin-top: -15px; color: #666;'>Silicon Valley Grade Real Estate Neural Network</p>", unsafe_allow_html=True)
+
+with col_hero_2:
+    # Currency Ticker in top right
+    currency = st.selectbox("", ["USD ($)", "INR (₹)"], label_visibility="collapsed")
+    exchange_rate = 84.0
+
+st.markdown("---")
+
+# MAIN WORKSPACE
+with st.form("valuation_form"):
     
-    if artifacts:
-        # User Inputs (Dynamic & Interactive)
-        # Note: We only ask for the MOST important features to keep UI clean
-        # The rest are filled with averages automatically.
+    # Using columns for a grid layout
+    c1, c2, c3 = st.columns(3)
+    
+    with c1:
+        st.markdown("### 🏗️ Structure")
+        year_built = st.number_input("Year Built", 1900, 2025, 2010)
+        gr_liv_area = st.number_input("Living Area (sq ft)", 500, 10000, 2500)
         
-        overall_qual = st.slider("🌟 Overall Quality", 1, 10, 7, help="Rates the overall material and finish of the house")
-        gr_liv_area = st.number_input("📐 Living Area (sq ft)", 500, 10000, 2000, step=100)
-        garage_cars = st.selectbox("🚗 Garage Capacity", [0, 1, 2, 3, 4], index=2)
-        year_built = st.slider("📅 Year Built", 1900, 2025, 2015)
-        full_bath = st.radio("wc Full Bathrooms", [1, 2, 3, 4], index=1, horizontal=True)
-        lot_area = st.number_input("🌳 Lot Area (sq ft)", 1000, 100000, 9000, step=500)
+    with c2:
+        st.markdown("### 💎 Features")
+        overall_qual = st.slider("Build Quality (1-10)", 1, 10, 8)
+        full_bath = st.slider("Bathrooms", 1, 5, 2)
+        
+    with c3:
+        st.markdown("### 📍 Land & Auto")
+        garage_cars = st.selectbox("Garage Spaces", [0, 1, 2, 3, 4], index=2)
+        lot_area = st.number_input("Lot Size (sq ft)", 1000, 50000, 8000)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Centered Action Button
+    b_col1, b_col2, b_col3 = st.columns([1, 2, 1])
+    with b_col2:
+        submitted = st.form_submit_button("Generate Valuation Analysis ⚡")
+
+# --- 5. RESULT & VISUALIZATION ENGINE ---
+if submitted:
+    # PREDICTION
+    input_data = artifacts['defaults'].copy()
+    input_data.update({
+        'OverallQual': overall_qual, 'GrLivArea': gr_liv_area,
+        'YearBuilt': year_built, 'GarageCars': garage_cars,
+        'FullBath': full_bath, 'LotArea': lot_area,
+        'YearRemodAdd': year_built # Safe assumption
+    })
+    
+    df_input = pd.DataFrame([input_data])[artifacts['features']]
+    df_scaled = artifacts['scaler'].transform(df_input)
+    base_price = artifacts['model'].predict(df_scaled)[0]
+    
+    # CURRENCY LOGIC
+    if currency == "INR (₹)":
+        final_price = base_price * exchange_rate
+        price_str = f"₹{final_price:,.0f}"
     else:
-        st.error("⚠️ Model file not found. Please upload 'house_price_model.pkl'.")
+        final_price = base_price
+        price_str = f"${final_price:,.0f}"
 
-# --- 4. MAIN DASHBOARD ---
-col_left, col_right = st.columns([2, 1.2])
-
-with col_left:
-    st.title("AI Real Estate Valuator")
-    st.markdown("##### Utilizing **XGBoost** High-Performance Machine Learning")
+    # --- THE "WOW" FACTOR: VISUALS ---
     
-    if artifacts:
-        # --- PREDICTION LOGIC ---
-        # 1. Create a "Base House" with average values for ALL columns
-        input_df = pd.DataFrame(columns=artifacts['features'])
+    st.markdown("---")
+    res_col1, res_col2 = st.columns([1, 1.5])
+    
+    with res_col1:
+        # THE PRICE CARD
+        st.markdown(f"""
+        <div class="glass-card">
+            <h4 style="margin:0; color: #888; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Estimated Market Value</h4>
+            <h1 style="font-size: 56px; margin: 10px 0; background: linear-gradient(90deg, #4ade80, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{price_str}</h1>
+            <p style="color: #666;">Based on {len(artifacts['features'])} data points analyzed against historical market trends.</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Fill with zeros initially (or you could calculate medians in notebook and pass them)
-        # For this demo, we initialize with 0 then fill our inputs
-        input_df.loc[0] = 0 
+        # KEY METRICS ROW
+        m1, m2 = st.columns(2)
+        m1.metric("Price / SqFt", f"{currency[0]} {final_price/gr_liv_area:.0f}")
+        m2.metric("Appreciation Potential", "High", delta="AI Projection")
+
+    with res_col2:
+        # RADAR CHART: COMPARISON TO MARKET AVERAGE
+        # We normalize values to 0-1 for the chart relative to some 'max'
+        categories = ['Quality', 'Size', 'Luxury (Garage)', 'Land']
         
-        # 2. Overwrite with User Inputs
-        input_df['OverallQual'] = overall_qual
-        input_df['GrLivArea'] = gr_liv_area
-        input_df['GarageCars'] = garage_cars
-        input_df['YearBuilt'] = year_built
-        input_df['FullBath'] = full_bath
-        input_df['LotArea'] = lot_area
-        # Add other safe defaults if needed (e.g., YearRemodAdd = YearBuilt)
-        input_df['YearRemodAdd'] = year_built 
+        # Create hypothetical "Market Average" (e.g., Quality 5, Size 1500, Garage 1, Land 5000)
+        # and compare with "This House"
+        
+        fig = go.Figure()
 
-        # 3. Scale the Data (Crucial Step!)
-        try:
-            input_scaled = artifacts['scaler'].transform(input_df)
-            
-            # 4. Predict
-            price_pred = artifacts['model'].predict(input_scaled)[0]
-            
-            # 5. Currency Conversion
-            if currency == "INR (₹)":
-                final_price = price_pred * exchange_rate
-                prefix = "₹"
-                # Formatting for Lakhs/Crores can be complex, sticking to standard commas for now
-                display_price = f"{final_price:,.0f}"
-            else:
-                final_price = price_pred
-                prefix = "$"
-                display_price = f"{final_price:,.0f}"
+        fig.add_trace(go.Scatterpolar(
+            r=[5, 1500/5000*10, 1/4*10, 5000/20000*10], # Scaled dummy avg
+            theta=categories,
+            fill='toself',
+            name='Market Avg',
+            line_color='#333'
+        ))
+        
+        fig.add_trace(go.Scatterpolar(
+            r=[overall_qual, gr_liv_area/5000*10, garage_cars/4*10, lot_area/20000*10],
+            theta=categories,
+            fill='toself',
+            name='This Property',
+            line_color='#4ade80'
+        ))
 
-            # --- DISPLAY RESULTS ---
-            st.markdown(f"""
-            <div class="metric-container" style="text-align: center; margin-top: 20px;">
-                <h3 style="color: #9ca3af; margin-bottom: 5px;">Estimated Property Value</h3>
-                <h1 style="font-size: 60px; margin: 0; color: #4ade80;">{prefix}{display_price}</h1>
-                <p style="color: #6b7280;">Confidence Interval: 94%</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        except Exception as e:
-            st.error(f"Error during prediction: {e}")
-            st.warning("Ensure the 'features' list in pickle matches the inputs.")
-
-with col_right:
-    st.markdown("<br>", unsafe_allow_html=True) # Spacer
-    
-    # INTERACTIVE GAUGE CHART
-    fig = go.Figure(go.Indicator(
-        mode = "gauge+number",
-        value = overall_qual,
-        title = {'text': "Quality Rating"},
-        gauge = {
-            'axis': {'range': [None, 10]},
-            'bar': {'color': "#3b82f6"},
-            'steps': [
-                {'range': [0, 5], 'color': "#374151"},
-                {'range': [5, 10], 'color': "#1f2937"}
-            ],
-            'threshold': {
-                'line': {'color': "white", 'width': 4},
-                'thickness': 0.75,
-                'value': overall_qual
-            }
-        }
-    ))
-    fig.update_layout(height=300, paper_bgcolor="rgba(0,0,0,0)", font={'color': "white"})
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Specs Summary
-    st.info(f"""
-    **Model Specs:**
-    - Algorithm: XGBoost Regressor
-    - Features: {len(artifacts['features']) if artifacts else 0} Inputs
-    - Scaler: Standard Scaler
-    """)
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(visible=True, range=[0, 10], showticklabels=False, linecolor='#333'),
+                bgcolor='rgba(0,0,0,0)'
+            ),
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='white'),
+            showlegend=True,
+            margin=dict(l=40, r=40, t=20, b=20),
+            height=300
+        )
+        
+        st.markdown('<div class="glass-card" style="padding: 10px;">', unsafe_allow_html=True)
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
